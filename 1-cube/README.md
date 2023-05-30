@@ -45,6 +45,8 @@ const camera = new THREE.PerspectiveCamera(
 - 도형 : geometry
 - 재질 : material
 
+* MeshBasicMaterial : 조명의 영향을 받지 않음.
+
 ## Scene에 Mash 추가 및 카메라 위치 설정
 
 - scene에 Mesh 추가
