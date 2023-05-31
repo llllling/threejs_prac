@@ -36,7 +36,16 @@ function init() {
   const geometry = new THREE.BoxGeometry(2, 2, 2);
   //MeshBasicMaterial 조명의 영향을 받지않음
 
-  const material = new THREE.MeshStandardMaterial({ color: 0xcc99ff });
+  const material = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(0xcc99ff),
+    // //불투명도 조절을 위해 transparent, opacity 함께 사용해야함
+    // transparent: true,
+    // opacity: 0.5,
+
+    // wireframe: true, // meterial 뼈대, 골격 확인을 위한 용도
+  });
+  // 위 처럼 생성할 때 값을 줄 수도 있지만 아래처럼 추가도 가능
+  // material.color = new THREE.Color(0xcc99ff);
 
   const cube = new THREE.Mesh(geometry, material);
   //씬에 cube 추가
