@@ -12,6 +12,7 @@ function init() {
   });
   //캔버스 크기 조정
   renderer.setSize(window.innerWidth, window.innerHeight);
+
   //renderer.domElement : 3d 컨텐츠가 보여질 캔버스 돔 요소
   // 아래처럼 돔에 캔버스 돔 요소를 추가한다.
   document.body.appendChild(renderer.domElement);
@@ -66,4 +67,12 @@ function init() {
   scene.add(ambientLight);
 
   renderer.render(scene, camera);
+
+  function handleResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix(); //이걸 반드시 호출해줘야 변경된 설정값 적용됨.
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.render(scene, camera);
+  }
+  window.addEventListener("resize", handleResize);
 }
