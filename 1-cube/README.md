@@ -45,9 +45,25 @@ const camera = new THREE.PerspectiveCamera(
 - 도형 : geometry
 - 재질 : material
 
+### geometry
+
+- IcosahedronGeometry : 20면체 도형
+
 ### material
 
 - MeshBasicMaterial : 조명의 영향을 받지 않음.
+
+```
+ new THREE.MeshStandardMaterial({
+    color: new THREE.Color(0xcc99ff),
+    // //불투명도 조절을 위해 transparent, opacity 함께 사용해야함
+    // transparent: true,
+    // opacity: 0.5,
+
+    // wireframe: true, // meterial 뼈대, 골격 확인을 위한 용도
+  });
+```
+
 - 빛에 반응하는 Material들(빛에 따른 다양한 효과 확인가능 ex. 그림자, 반사, 굴절 등)
   - MeshLambertMaterial
   * MeshPhongMaterial

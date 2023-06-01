@@ -34,37 +34,35 @@ function init() {
     1,
     500
   );
-  const geometry = new THREE.BoxGeometry(2, 2, 2);
-  //MeshBasicMaterial 조명의 영향을 받지않음
 
-  const material = new THREE.MeshStandardMaterial({
-    color: new THREE.Color(0xcc99ff),
-    // //불투명도 조절을 위해 transparent, opacity 함께 사용해야함
-    // transparent: true,
-    // opacity: 0.5,
-
-    // wireframe: true, // meterial 뼈대, 골격 확인을 위한 용도
+  const cubeGeometry = new THREE.IcosahedronGeometry(1);
+  const cubeMaterial = new THREE.MeshLambertMaterial({
+    color: 0x00ffff,
+    emissive: 0x111111,
   });
   // 위 처럼 생성할 때 값을 줄 수도 있지만 아래처럼 추가도 가능
   // material.color = new THREE.Color(0xcc99ff);
+  const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
-  const cube = new THREE.Mesh(geometry, material);
+  const skeletonGeometry = new THREE.IcosahedronGeometry(2);
+  const skeletonMaterial = new THREE.MeshBasicMaterial({
+    wireframe: true,
+    transparent: true,
+    opacity: 0.2,
+    color: 0xaaaaaa,
+  });
+  const skeleton = new THREE.Mesh(skeletonGeometry, skeletonMaterial);
   //씬에 cube 추가
-  scene.add(cube);
+  scene.add(cube, skeleton);
 
   //기본적으로 씬에 추가한다고 보이지않음 카메라 위치를 조정해서
-  // camera.postion.z = 5;
-  camera.position.set(3, 4, 5);
+  camera.position.z = 5;
 
   //카메라 위치에 상관없이 항상 큐브가 자리한 위치를 바라보도록 설정
-  camera.lookAt(cube.position);
-  const directionalLight = new THREE.DirectionalLight(0xf0f0f0, 1);
-  directionalLight.position.set(-1, 2, 3);
-  scene.add(directionalLight);
+  // camera.lookAt(cube.position);
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
-  ambientLight.position.set(3, 2, 1);
-  scene.add(ambientLight);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  scene.add(directionalLight);
 
   const clock = new THREE.Clock();
 
@@ -76,8 +74,15 @@ function init() {
 
     // cube.rotation.x = Date.now() / 1000;
     // cube.rotation.x = clock.getElapsedTime();
-    cube.rotation.x += clock.getDelta();
+    // cube.rotation.x += clock.getDelta();
 
+    const elapsedTime = clock.getElapsedTime();
+    cube.rotation.x = elapsedTime;
+    cube.rotation.y = elapsedTime;
+
+    // cube보다 빠르게 회전
+    skeleton.rotation.x = elapsedTime * 1.5;
+    skeleton.rotation.y = elapsedTime * 1.5;
     /*sin 함수의 값은 항상 -1 ~ 1 사이를 반복해서 움직임.
     그래서 그냥 cube.rotation.x 값 너어줌.*/
     // cube.rotation.y = Math.sin(cube.rotation.x);
