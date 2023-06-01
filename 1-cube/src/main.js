@@ -66,7 +66,26 @@ function init() {
   ambientLight.position.set(3, 2, 1);
   scene.add(ambientLight);
 
-  renderer.render(scene, camera);
+  const clock = new THREE.Clock();
+
+  render();
+
+  function render() {
+    // 각도를 라디안으로 변환해서 넣어줌
+    // cube.rotation.x = THREE.MathUtils.degToRad(45);
+
+    // cube.rotation.x = Date.now() / 1000;
+    // cube.rotation.x = clock.getElapsedTime();
+    cube.rotation.x += clock.getDelta();
+
+    /*sin 함수의 값은 항상 -1 ~ 1 사이를 반복해서 움직임.
+    그래서 그냥 cube.rotation.x 값 너어줌.*/
+    // cube.rotation.y = Math.sin(cube.rotation.x);
+    /* 크기 변경 */
+    // cube.scale.x = Math.cos(cube.rotation.x);
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+  }
 
   function handleResize() {
     camera.aspect = window.innerWidth / window.innerHeight;

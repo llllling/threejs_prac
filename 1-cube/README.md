@@ -83,3 +83,57 @@ camera.position.set(0, 0, 5);
 //카메라 위치에 상관없이 항상 큐브가 자리한 위치를 바라보도록 설정
   camera.lookAt(cube.position);
 ```
+
+## etc
+
+### 애니메이션 등록 시 유의점
+
+- 사용자 컴퓨터마다 fps가 달라서 동일한 화면이더라도 애니메이션 재생속도 차이남.
+
+**동일한 재생속도를 위해 어떻게 해야할까 ?**
+
+- 시간이란 건 어디에서나 동일하니까 Date.now() 이용해서 동일한 속도로 보이도록 만들어줌
+
+```
+// 애니메이션 안에서 cube 회전시키는 동작을 구현하는 경우
+// Date.now() 밀리세컨드라서 너무 빠르게 회전해서 1000 나눠줌
+  render();
+
+  function render() {
+    cube.rotation.x = Date.now() / 1000;
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+  }
+```
+
+- ThreeJS 에서 제공하는 Clock의 getElapsedTime 이용
+  - getElapsedTime : clock 인스턴스가 생성된 시점으로부터 경과한 시간을 초단위로 반환
+
+```
+  const clock = new THREE.Clock();
+  render();
+
+  function render() {
+    cube.rotation.x = clock.getElapsedTime();
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+  }
+```
+
+- ThreeJS 에서 제공하는 Clock의 getDelta 이용
+  - getDelta : getDelta 호출되고나서 그 다음번에 다시 호출되기까지의 시간 간격을 반환
+  * 절대적인 경과시간이 아니라 각 호출 사이의 간격을 반환하기 때문에 애니메이션 적용에 사용하려면 아래처럼 계속 더해주는 형태로 사용
+
+```
+  const clock = new THREE.Clock();
+  render();
+
+  function render() {
+    cube.rotation.x += clock.getDelta();
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+  }
+```
