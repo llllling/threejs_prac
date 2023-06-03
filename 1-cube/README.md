@@ -1,4 +1,4 @@
-# cube 생성
+# 3D Cube
 
 ## renderer 생성
 
