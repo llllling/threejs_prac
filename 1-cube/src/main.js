@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 window.addEventListener("load", function () {
   init();
@@ -34,6 +35,20 @@ function init() {
     1,
     500
   );
+
+  //카메라 컨트롤러
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.autoRotate = true;
+  //드래그 하는 순간 바로 멈추지 않고 관성효과
+  controls.enableDamping = true;
+  // 카메라 앞뒤 움직임 ( 마우스 휠), defalute 값 true
+  controls.enableZoom = true;
+  //카메라 좌우 움직임 (마우스 우클릭 후 움직임)
+  controls.enablePan = true;
+
+  // const axesHelpler = new THREE.AxesHelper(5);
+  // //빨간색이 x , 연두색이 y
+  // scene.add(axesHelpler);
 
   const cubeGeometry = new THREE.IcosahedronGeometry(1);
   const cubeMaterial = new THREE.MeshLambertMaterial({
@@ -76,19 +91,21 @@ function init() {
     // cube.rotation.x = clock.getElapsedTime();
     // cube.rotation.x += clock.getDelta();
 
-    const elapsedTime = clock.getElapsedTime();
-    cube.rotation.x = elapsedTime;
-    cube.rotation.y = elapsedTime;
+    // const elapsedTime = clock.getElapsedTime();
+    // cube.rotation.x = elapsedTime;
+    // cube.rotation.y = elapsedTime;
 
-    // cube보다 빠르게 회전
-    skeleton.rotation.x = elapsedTime * 1.5;
-    skeleton.rotation.y = elapsedTime * 1.5;
+    // // cube보다 빠르게 회전
+    // skeleton.rotation.x = elapsedTime * 1.5;
+    // skeleton.rotation.y = elapsedTime * 1.5;
+
     /*sin 함수의 값은 항상 -1 ~ 1 사이를 반복해서 움직임.
     그래서 그냥 cube.rotation.x 값 너어줌.*/
     // cube.rotation.y = Math.sin(cube.rotation.x);
     /* 크기 변경 */
     // cube.scale.x = Math.cos(cube.rotation.x);
     renderer.render(scene, camera);
+    controls.update();
     requestAnimationFrame(render);
   }
 
@@ -97,6 +114,7 @@ function init() {
     camera.updateProjectionMatrix(); //이걸 반드시 호출해줘야 변경된 설정값 적용됨.
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
+    controls.update();
   }
   window.addEventListener("resize", handleResize);
 }
