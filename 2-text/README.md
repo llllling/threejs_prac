@@ -104,7 +104,7 @@ const textGeometry = new TextGeometry("안녕하세요.", {
   textGeometry.center();
 ```
 
-## 텍스처 추가
+## Texture 추가
 
 - material.map 속성에 load한 texture 추가
 
@@ -118,7 +118,7 @@ const textureLoader = new THREE.TextureLoader().setPath("./assets/textures/");
   textMaterial.map = textTexture;
 ```
 
-### SpotLight
+## SpotLight
 
 - SpotLight() 파라미터 순서
   1. 빛의 색상
@@ -130,4 +130,63 @@ const textureLoader = new THREE.TextureLoader().setPath("./assets/textures/");
 
 ```
  const spotLight = new THREE.SpotLight(0xffffff, 2.5, 30, Math.PI * 0.15, 0.2, 0.5)
+```
+
+- mouse interaction 추가 : 마우스의 움직임이 맞춰 빛을 비추는 target 변경
+
+```
+ //target 기본 정중앙
+  const spotLight = new THREE.SpotLight(0xffffff, 2.5, 30, Math.PI * 0.15, 0.2, 0.5)
+  spotLight.target.position.set(0, 0, -3);
+  scene.add(spotLight, spotLight.target);
+
+  window.addEventListener("mousemove", (e) => {
+    //e.clientX/Y 값은 절대값임. threejs의 좌표계와 다름
+    // 그래서 화면에서 상대적인 값 구해서 threejs 좌표계에 맞게 변경
+    // 움직이는 범위 늘리기 위해 * 5
+    const x = (e.clientX / window.innerWidth - 0.5) * 5;
+    const y = -(e.clientY / window.innerHeight - 0.5) * 5;
+
+    spotLight.target.position.set(x, y, -3);
+  });
+```
+
+## 그림자
+
+- 그림자를 만들기 위해선 renderer에 그림자 맵을 사용하겠단 설정을 먼저 해주어야함.
+
+```
+  //그림자 맵 사용하겠다.
+  renderer.shadowMap.enabled = true;
+```
+
+- 그림자를 드리우게
+  - TextGeometry에 설정
+  * 모든 종류의 light가 그림자를 생기게 하는거 아니지만, spotLight는 그림자를 드리울 수 있는 조명 중 하나
+
+```
+  text.castShadow = true;
+  spotLight.castShadow = true;
+```
+
+- 그림자를 받도록
+  - 해당 예제에선 TextGeometry에 뒤에 있는 PlaneGeometry에 설정
+
+```
+  plane.receiveShadow = true;
+```
+
+- 그림자의 해상도 조정
+  - default : 512
+  * 높게 설정하면 렌더링 성능에 영향을 주니까 적당한 값 설정
+
+```
+  spotLight.shadow.mapSize.width = 1024;
+  spotLight.shadow.mapSize.height = 1024;
+```
+
+- 그림자 블러 효과(선명하게 흐릿하게)
+
+```
+ spotLight.shadow.radius = 10;
 ```

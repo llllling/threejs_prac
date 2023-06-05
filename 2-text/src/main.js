@@ -12,6 +12,9 @@ async function init() {
   const renderer = new THREE.WebGL1Renderer({
     antialias: true,
   });
+  //그림자 맵 사용하겠다.
+  renderer.shadowMap.enabled = true;
+
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
@@ -51,7 +54,7 @@ async function init() {
   const textMaterial = new THREE.MeshPhongMaterial();
   textMaterial.map = textTexture;
   const text = new THREE.Mesh(textGeometry, textMaterial);
-
+  text.castShadow = true;
   scene.add(text);
 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
@@ -65,12 +68,24 @@ async function init() {
     0.2,
     0.5
   );
+  spotLight.castShadow = true;
+  spotLight.shadow.mapSize.width = 1024;
+  spotLight.shadow.mapSize.height = 1024;
+  spotLight.shadow.radius = 10;
   spotLight.position.set(0, 0, 3);
+  //target 기본 정중앙
   spotLight.target.position.set(0, 0, -3);
   scene.add(spotLight, spotLight.target);
 
-  const spotLightHelper = new THREE.SpotLightHelper(spotLight);
-  scene.add(spotLightHelper);
+  window.addEventListener("mousemove", (e) => {
+    //threejs의 좌표계와 달라서  화면의 상대적인 값 구해서 threejs 좌표계에 맞게 변경
+    // 움직이는 범위 늘리기 위해 * 5
+    const x = (e.clientX / window.innerWidth - 0.5) * 5;
+    const y = -(e.clientY / window.innerHeight - 0.5) * 5;
+
+    spotLight.target.position.set(x, y, -3);
+  });
+
   const spotLightFolder = gui.addFolder("SpotLight");
   spotLightFolder
     .add(spotLight, "angle")
@@ -86,6 +101,12 @@ async function init() {
   spotLightFolder.add(spotLight, "distance").min(1).max(30).step(0.01);
   spotLightFolder.add(spotLight, "decay").min(0).max(10).step(0.01);
   spotLightFolder.add(spotLight, "penumbra").min(0).max(1).step(0.01);
+  spotLightFolder
+    .add(spotLight.shadow, "radius")
+    .min(1)
+    .max(20)
+    .step(0.01)
+    .name("shadow.radius");
 
   const planeGeometry = new THREE.PlaneGeometry(2000, 2000);
   const planeMaterial = new THREE.MeshPhongMaterial({
@@ -93,14 +114,13 @@ async function init() {
   });
   const plane = new THREE.Mesh(planeGeometry, planeMaterial);
   plane.position.z = -10;
+  plane.receiveShadow = true;
   scene.add(plane);
 
   render();
 
   function render() {
     renderer.render(scene, camera);
-    spotLightHelper.update();
-
     requestAnimationFrame(render);
   }
 
