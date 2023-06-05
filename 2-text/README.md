@@ -117,3 +117,17 @@ const textureLoader = new THREE.TextureLoader().setPath("./assets/textures/");
   const textMaterial = new THREE.MeshPhongMaterial();
   textMaterial.map = textTexture;
 ```
+
+### SpotLight
+
+- SpotLight() 파라미터 순서
+  1. 빛의 색상
+  2. 빛의 강도
+  3. 빛이 닫는 거리(distance)
+  4. 빛이 퍼지는 각도(angle)
+  5. 빛이 감쇄하는 정도(빛의 경계가 선명하고 흐릿하고)(penumbra)
+  6. 빛의 거리에 따라 빛이 희미해지는 정도(dekay)
+
+```
+ const spotLight = new THREE.SpotLight(0xffffff, 2.5, 30, Math.PI * 0.15, 0.2, 0.5)
+```

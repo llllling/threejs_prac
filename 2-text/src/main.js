@@ -23,7 +23,8 @@ async function init() {
     1,
     500
   );
-  camera.position.z = 5;
+  camera.position.set(0, 1, 5);
+
   new OrbitControls(camera, renderer.domElement);
 
   const fontLoader = new FontLoader();
@@ -31,7 +32,7 @@ async function init() {
     "./assets/fonts/The Jamsil 3 Regular_Regular.json"
   );
 
-  const textGeometry = new TextGeometry("안녕하세요.", {
+  const textGeometry = new TextGeometry("Three.js Text 3D Web", {
     font,
     size: 0.5,
     height: 0.1,
@@ -53,18 +54,53 @@ async function init() {
 
   scene.add(text);
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
   scene.add(ambientLight);
 
-  const pointLight = new THREE.PointLight(0xffffff, 1);
-  pointLight.position.set(3, 0, 2);
-  scene.add(pointLight);
-  gui.add(pointLight.position, "x").min(-3).max(3).step(0.1);
+  const spotLight = new THREE.SpotLight(
+    0xffffff,
+    2.5,
+    30,
+    Math.PI * 0.15,
+    0.2,
+    0.5
+  );
+  spotLight.position.set(0, 0, 3);
+  spotLight.target.position.set(0, 0, -3);
+  scene.add(spotLight, spotLight.target);
+
+  const spotLightHelper = new THREE.SpotLightHelper(spotLight);
+  scene.add(spotLightHelper);
+  const spotLightFolder = gui.addFolder("SpotLight");
+  spotLightFolder
+    .add(spotLight, "angle")
+    .min(0)
+    .max(Math.PI / 2)
+    .step(0.01);
+  spotLightFolder
+    .add(spotLight.position, "z")
+    .min(1)
+    .max(10)
+    .step(0.01)
+    .name("position.z");
+  spotLightFolder.add(spotLight, "distance").min(1).max(30).step(0.01);
+  spotLightFolder.add(spotLight, "decay").min(0).max(10).step(0.01);
+  spotLightFolder.add(spotLight, "penumbra").min(0).max(1).step(0.01);
+
+  const planeGeometry = new THREE.PlaneGeometry(2000, 2000);
+  const planeMaterial = new THREE.MeshPhongMaterial({
+    color: 0x00000,
+  });
+  const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  plane.position.z = -10;
+  scene.add(plane);
 
   render();
 
   function render() {
     renderer.render(scene, camera);
+    spotLightHelper.update();
+
     requestAnimationFrame(render);
   }
 
