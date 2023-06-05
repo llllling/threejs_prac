@@ -2,7 +2,11 @@ import * as THREE from "three";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
 import GUI from "lil-gui";
+
 window.addEventListener("load", function () {
   init();
 });
@@ -35,6 +39,7 @@ async function init() {
     "./assets/fonts/The Jamsil 3 Regular_Regular.json"
   );
 
+  /** Mesh */
   const textGeometry = new TextGeometry("Three.js Text 3D Web", {
     font,
     size: 0.5,
@@ -57,6 +62,16 @@ async function init() {
   text.castShadow = true;
   scene.add(text);
 
+  const planeGeometry = new THREE.PlaneGeometry(2000, 2000);
+  const planeMaterial = new THREE.MeshPhongMaterial({
+    color: 0x00000,
+  });
+  const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  plane.position.z = -10;
+  plane.receiveShadow = true;
+  scene.add(plane);
+
+  /** Light */
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
   scene.add(ambientLight);
 
@@ -112,19 +127,34 @@ async function init() {
     .step(0.01)
     .name("shadow.radius");
 
-  const planeGeometry = new THREE.PlaneGeometry(2000, 2000);
-  const planeMaterial = new THREE.MeshPhongMaterial({
-    color: 0x00000,
-  });
-  const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-  plane.position.z = -10;
-  plane.receiveShadow = true;
-  scene.add(plane);
+  const composer = new EffectComposer(renderer);
+  const renderPass = new RenderPass(scene, camera);
+  composer.addPass(renderPass);
+  const unrealBloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    1.2,
+    1,
+    0
+  );
+  composer.addPass(unrealBloomPass);
+
+  const unrealBloomPassFolder = gui.addFolder("UnrealBloomPass");
+  unrealBloomPassFolder
+    .add(unrealBloomPass, "strength")
+    .min(0)
+    .max(3)
+    .step(0.01);
+  unrealBloomPassFolder.add(unrealBloomPass, "radius").min(0).max(1).step(0.01);
+  unrealBloomPassFolder
+    .add(unrealBloomPass, "threshold")
+    .min(0)
+    .max(1)
+    .step(0.01);
 
   render();
 
   function render() {
-    renderer.render(scene, camera);
+    composer.render();
     requestAnimationFrame(render);
   }
 

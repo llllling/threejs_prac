@@ -190,3 +190,54 @@ const textureLoader = new THREE.TextureLoader().setPath("./assets/textures/");
 ```
  spotLight.shadow.radius = 10;
 ```
+
+## 후처리 postProcessing
+
+- 최종 렌더된 결과물에 다양한 그래픽 효과를 적용하고 싶을 때 사용함
+- threejs에선 Pass라고함. EffectComposer라는 걸 통해서 최종 결과물에 Pass들을 순차적으로 적용할 수 있음.
+
+### 후처리 효과를 적용할 준비
+
+```
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+
+ const composer = new EffectComposer(renderer);
+
+  render();
+
+  function render() {
+    //renderer.render(scene, camera) 대신 composer로 변경
+   composer.render();
+    requestAnimationFrame(render);
+  }
+
+```
+
+### Pass 추가
+
+- RenderPass : effect composer 내부적으로 렌더링되는 결과물을 후처리의 기본 장면으로 사용할 목적으로 사용하는 패스
+
+```
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+
+  const renderPass = new RenderPass(scene, camera);
+  composer.addPass(renderPass);
+
+```
+
+- UnrealBloomPass : threejs에 기본적으로 내장되어 있는 후처리 효과, 레이저 광선같은 효과를 나타내고 싶을 때 사용할 수 있는 후처리 효과
+  - 파라미터
+    1. 해상도를 설정하기 위한 백터값
+    2. strength : 효과의 강도
+    3. radius : 빛의 밝기가 퍼지는 정도
+    4. threshold : 얼마만큼의 빛의 양을 받았을 때 효과를 적용되도록 할 것인지
+
+```
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
+
+ const unrealBloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    1.2
+  );
+  composer.addPass(unrealBloomPass)
+```
