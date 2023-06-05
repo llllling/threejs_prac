@@ -75,6 +75,10 @@ async function init() {
   spotLight.position.set(0, 0, 3);
   //target 기본 정중앙
   spotLight.target.position.set(0, 0, -3);
+
+  const spotLightTexture = textureLoader.load("gradient.jpg");
+  spotLight.map = spotLightTexture;
+
   scene.add(spotLight, spotLight.target);
 
   window.addEventListener("mousemove", (e) => {
