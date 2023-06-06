@@ -26,13 +26,25 @@ function init() {
   );
   camera.position.z = 25;
   const controls = new OrbitControls(camera, renderer.domElement);
-
+  //카드가 계속 회전하는 것 처럼 보이도록
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 2.5;
+  //화면에 직접 드래그해서 회전시키는 속도, 기본값 1
+  controls.rotateSpeed = 0.7;
+  //관성
+  controls.enableDamping = true;
+  controls.enableZoom = false;
+  // 회전각도 제한, 회전각도 기준 값 0~180도 사이
+  controls.minPolarAngle = Math.PI / 2 - Math.PI / 3;
+  controls.maxPolarAngle = Math.PI / 2 + Math.PI / 3;
   const card = new Card({
     width: 10,
     height: 15.8,
     radius: 0.5,
     color: "#0077ff",
   });
+  // 살짝 기울어지게
+  card.mesh.rotation.z = Math.PI * 0.1;
   scene.add(card.mesh);
 
   const cardFolder = gui.addFolder("Card");
@@ -62,6 +74,7 @@ function init() {
 
   function render() {
     renderer.render(scene, camera);
+    controls.update();
     requestAnimationFrame(render);
   }
 
