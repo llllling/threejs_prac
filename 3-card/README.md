@@ -100,3 +100,22 @@ PlaneGeometry는 가장자리를 둥글게 하는 옵션이 없다.
       bevelThickness: 0.1,
     });
 ```
+
+## 애니메이션 추가
+
+### GSAP
+
+애니메이션 라이브러리, GreenSock에서 만든 Animation Platform 이란 이름의 앞글자를 따서 GSAP 이라고 함.
+
+- to() : 객체의 속성을 원하는 값으로 부드럽게 변경됨
+  - duration : 애니메이션 진행시간(지속시간) 조정
+  - ease: 좀 더 부드럽게 보이기 위한 애니메이션 타이밍함수
+
+```
+  gsap.to(card.mesh.rotation, {
+    y: -(Math.PI * 4),
+    duration: 2.5,
+    ease: "back.out(4)",
+  });
+
+```

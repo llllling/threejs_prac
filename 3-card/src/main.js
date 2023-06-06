@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import GUI from "lil-gui";
+import { gsap } from "gsap";
 import Card from "./Card";
 
 window.addEventListener("load", function () {
@@ -48,6 +49,13 @@ function init() {
   card.mesh.rotation.z = Math.PI * 0.1;
   scene.add(card.mesh);
 
+  // 객체의 속성을 원하는 값으로 부드럽게 변경됨
+  gsap.to(card.mesh.rotation, {
+    y: -(Math.PI * 4),
+    duration: 2.5,
+    ease: "back.out(4)",
+  });
+
   const cardFolder = gui.addFolder("Card");
   cardFolder
     .add(card.mesh.material, "roughness")
@@ -93,6 +101,12 @@ function init() {
     button.style.backgroundColor = color;
     button.addEventListener("click", () => {
       card.mesh.material.color = new THREE.Color(color);
+      //카드 선택시 90도씩 돌아가도록
+      gsap.to(card.mesh.rotation, {
+        y: card.mesh.rotation.y - Math.PI / 2,
+        duration: 1,
+        ease: "back.out(4)",
+      });
     });
     container.appendChild(button);
   });
