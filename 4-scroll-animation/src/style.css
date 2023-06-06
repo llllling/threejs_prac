@@ -1,0 +1,35 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Avenir;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+/*canvas외의 html요소들이 canvas 위에 위치할 수 있도록 position 설정.
+안하면 기본적으로 static 인데, static은 fixed, absolute, relative같은 위치를 갖는 요소보다 아래에 깔림.
+*/
+.wrapper {
+  position: relative;
+}
+
+header {
+  padding: 12px 24px;
+  /*스크롤 영역만들어 주기위해*/
+  min-height: 1000vh;
+}
+
+h1 {
+  margin: 0;
+  padding: 0;
+  font-size: 64px;
+  font-weight: bold;
+  text-align: center;
+}
