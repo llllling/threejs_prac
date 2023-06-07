@@ -87,14 +87,31 @@ const waveHeight = 2.5;
 - 사용자 컴퓨터마다 fps가 달라서 동일한 화면이더라도 애니메이션 재생속도 차이나기때문에 elapsedTime 사용해서 파도정점 z 값에 더해줌
 
 * waveGeometry.attributes.position.needsUpdate = true : 값 변경 후 반드시 정점의 좌표정보가 업데이트 되어야함을 ThreeJS에게 알려줘야함
+* initZPosition 생성 이유 : 파도 모양을 유지하면서 Math.sin()을 더해주기 위해
+  - 왜 waveGeometry.attributes.position.getZ(i) 이용하면 안되는가? 생각 했는데, update()함수는 애니메이션 프레임마다 호출된다. waveGeometry.attributes.position.getZ(i)이용하게 되면 이전에 계산된 파도 높이에 또 값이 추가되는 거니까 원하는 파도모양이 유지가 안됨. 그래서 처음 z Position을 이용해야함.
 
 ```
-//wave : Mesh 객체에 update란 이름으로 함수 추가해줌
- const clock = new THREE.Clock();
+// wave : Mesh 객체
+  const initZPosition = [];
+  const waveHeight = 2.5;
+  for (let i = 0; i < waveGeometry.attributes.position.count; i++) {
+    const z =
+      waveGeometry.attributes.position.getZ(i) +
+      (Math.random() - 0.5) * waveHeight;
+    waveGeometry.attributes.position.setZ(i, z);
+    initZPosition.push(z);
+  }
+
+// 애니메이션에 사용되는 함수
+  const clock = new THREE.Clock();
   wave.update = () => {
     const elapsedTime = clock.getElapsedTime();
-    for (let i = 0; i < waveGeometry.attributes.position.array.length; i += 3) {
-      waveGeometry.attributes.position.array[i + 2] += elapsedTime * 0.01;
+    for (let i = 0; i < waveGeometry.attributes.position.count; i++) {
+      // i ** 2 : 정점마다 움직이는 높낮이 다르게 주기위해 i 이용, i만 주게되면 선형적으로 값이 증가하니까 물결이 규칙적인 모양으로 움직임 그래서 거듭제곱함
+      const z =
+        initZPosition[i] + Math.sin(elapsedTime * 3 + i ** 2) * waveHeight;
+
+      waveGeometry.attributes.position.setZ(i, z);
     }
 
     waveGeometry.attributes.position.needsUpdate = true;

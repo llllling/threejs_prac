@@ -29,27 +29,32 @@ function init() {
   camera.position.set(0, 25, 150);
   //Plane Mesh 뿐 아니라 모든 Mesh가 여러 삼각형의 합으로 이루어져있음
   //더 많은 정점을 위해 Segments값도 150으로 크게
-  const waveGeometry = new THREE.PlaneGeometry(1500, 1500, 150, 150);
+  const waveGeometry = new THREE.PlaneGeometry(1500, 1500, 15, 15);
   const waveMaterial = new THREE.MeshStandardMaterial({
     color: "#00ffff",
   });
   const wave = new THREE.Mesh(waveGeometry, waveMaterial);
   wave.rotation.x = -(Math.PI / 2);
 
+  const initZPosition = [];
   const waveHeight = 2.5;
   for (let i = 0; i < waveGeometry.attributes.position.count; i++) {
     const z =
       waveGeometry.attributes.position.getZ(i) +
       (Math.random() - 0.5) * waveHeight;
     waveGeometry.attributes.position.setZ(i, z);
+    initZPosition.push(z);
   }
-
   const clock = new THREE.Clock();
   wave.update = () => {
     //사용자 컴퓨터마다 fps가 달라서 동일한 화면이더라도 애니메이션 재생속도 차이나기때문에 elapsedTime 사용
     const elapsedTime = clock.getElapsedTime();
-    for (let i = 0; i < waveGeometry.attributes.position.array.length; i += 3) {
-      waveGeometry.attributes.position.array[i + 2] += elapsedTime * 0.01;
+    for (let i = 0; i < waveGeometry.attributes.position.count; i++) {
+      //i **2 : 정점마다 움직이는 높낮이 다르게 주기위해 i 이용, i만 주게되면 선형적으로 값이 증가하니까 물결이 규칙적인 모양을 가직 움직임 그래서 거듭제곱함
+      const z =
+        initZPosition[i] + Math.sin(elapsedTime * 3 + i ** 2) * waveHeight;
+
+      waveGeometry.attributes.position.setZ(i, z);
     }
     // 정점의 좌표정보가 업데이트 되어야함을 ThreeJS에게 알려줘야함
     waveGeometry.attributes.position.needsUpdate = true;
