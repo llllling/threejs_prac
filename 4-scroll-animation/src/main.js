@@ -43,6 +43,17 @@ function init() {
       (Math.random() - 0.5) * waveHeight;
     waveGeometry.attributes.position.setZ(i, z);
   }
+
+  const clock = new THREE.Clock();
+  wave.update = () => {
+    //사용자 컴퓨터마다 fps가 달라서 동일한 화면이더라도 애니메이션 재생속도 차이나기때문에 elapsedTime 사용
+    const elapsedTime = clock.getElapsedTime();
+    for (let i = 0; i < waveGeometry.attributes.position.array.length; i += 3) {
+      waveGeometry.attributes.position.array[i + 2] += elapsedTime * 0.01;
+    }
+    // 정점의 좌표정보가 업데이트 되어야함을 ThreeJS에게 알려줘야함
+    waveGeometry.attributes.position.needsUpdate = true;
+  };
   scene.add(wave);
 
   const ponitLight = new THREE.PointLight(0xfffff, 1);
@@ -55,6 +66,7 @@ function init() {
 
   render();
   function render() {
+    wave.update();
     renderer.render(scene, camera);
     requestAnimationFrame(render);
   }

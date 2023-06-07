@@ -81,3 +81,31 @@ const waveHeight = 2.5;
 ```
   scene.fog = new THREE.FogExp2(0xf0f0f0, 0.005);
 ```
+
+## 파도 애니메이션
+
+- 사용자 컴퓨터마다 fps가 달라서 동일한 화면이더라도 애니메이션 재생속도 차이나기때문에 elapsedTime 사용해서 파도정점 z 값에 더해줌
+
+* waveGeometry.attributes.position.needsUpdate = true : 값 변경 후 반드시 정점의 좌표정보가 업데이트 되어야함을 ThreeJS에게 알려줘야함
+
+```
+//wave : Mesh 객체에 update란 이름으로 함수 추가해줌
+ const clock = new THREE.Clock();
+  wave.update = () => {
+    const elapsedTime = clock.getElapsedTime();
+    for (let i = 0; i < waveGeometry.attributes.position.array.length; i += 3) {
+      waveGeometry.attributes.position.array[i + 2] += elapsedTime * 0.01;
+    }
+
+    waveGeometry.attributes.position.needsUpdate = true;
+  };
+
+  ...
+
+//render에 update 호출
+   function render() {
+    wave.update();
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+  }
+```
