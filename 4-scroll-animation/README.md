@@ -54,3 +54,30 @@ const waveHeight = 2.5;
       (Math.random() - 0.5) * waveHeight;
     waveGeometry.attributes.position.setZ(i, z);
 ```
+
+## 안개 생성
+
+- scene.fog라는 속성을 통해 설정
+
+1. new THREE.Fog()
+
+   - color : 안개 색상
+   - near/ far : 안개를 카메라로부터 얼만큼 가까운 거리, 먼 거리까지 적용할 것 인지
+
+```
+  scene.fog = THREE.Fog(0xf0f0f0, 0.1, 500);
+```
+
+2. new THREE.FogExp2()
+
+   - 카메라 근처에서 시야가 옅게 보이다가 카메라에서 멀어질 수록 거듭제곱 지수함수(FogExp2())만큼 기하급수적으로 안개가 짙어지는 효과
+   - 현실적인 느낌의 안개설정 가능
+
+   * 그렇지만 안개의 범위를 직접 지정할 수 있는 위에꺼를 더 많이 사용한다고 함
+
+   * color : 안개 색상
+   * density : 안개의 밀도
+
+```
+  scene.fog = new THREE.FogExp2(0xf0f0f0, 0.005);
+```
