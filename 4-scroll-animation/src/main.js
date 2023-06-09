@@ -1,17 +1,18 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { GUI } from "lil-gui";
 window.addEventListener("load", function () {
   init();
 });
 
-function init() {
+async function init() {
   const gui = new GUI();
 
   const canvas = document.querySelector("#canvas");
   const renderer = new THREE.WebGL1Renderer({
     antialias: true,
     alpha: true,
-    canvas,
+    canvas
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -31,7 +32,7 @@ function init() {
   //더 많은 정점을 위해 Segments값도 150으로 크게
   const waveGeometry = new THREE.PlaneGeometry(1500, 1500, 15, 15);
   const waveMaterial = new THREE.MeshStandardMaterial({
-    color: "#00ffff",
+    color: "#00ffff"
   });
   const wave = new THREE.Mesh(waveGeometry, waveMaterial);
   wave.rotation.x = -(Math.PI / 2);
@@ -61,6 +62,21 @@ function init() {
   };
   scene.add(wave);
 
+  const gLTFLoader = new GLTFLoader();
+  const gltf = await gLTFLoader.loadAsync("./models/ship/scene.gltf");
+  const ship = gltf.scene;
+
+  //배가 위아래로 파도에 맞게 움직이는 것을 표현
+  //시간에 따라 위아래로 움직일 수 있도록
+  ship.update = () => {
+    const elapsedTime = clock.getElapsedTime();
+    ship.position.y = Math.sin(elapsedTime * 3);
+  };
+
+  ship.rotation.y = Math.PI;
+  ship.scale.set(40, 40, 40);
+  scene.add(ship);
+
   const ponitLight = new THREE.PointLight(0xfffff, 1);
   ponitLight.position.set(15, 15, 15);
   scene.add(ponitLight);
@@ -72,6 +88,8 @@ function init() {
   render();
   function render() {
     wave.update();
+    ship.update();
+    camera.lookAt(ship.position);
     renderer.render(scene, camera);
     requestAnimationFrame(render);
   }

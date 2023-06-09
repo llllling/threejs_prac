@@ -126,3 +126,40 @@ const waveHeight = 2.5;
     requestAnimationFrame(render);
   }
 ```
+
+## 3D모델 불러오기
+
+- gltf.scene : 비동기로 불러오면, gltf 객체안에 scene이라는 프로퍼티가 있는 데 여기에 3D 모델 데이터가 들어있음.
+
+```
+  const gLTFLoader = new GLTFLoader();
+  const gltf = await gLTFLoader.loadAsync("./models/ship/scene.gltf");
+  const ship = gltf.scene;
+  // y축을 기준으로 회전
+  ship.rotation.y = Math.PI;
+  //크기 조정
+  ship.scale.set(40, 40, 40);
+  scene.add(ship);
+```
+
+## 배 애니메이션 추가
+
+### 바다 위에 떠있는 느낌
+
+```
+  //배가 위아래로 파도에 맞게 움직이는 것을 표현
+  //시간에 따라 위아래로 움직일 수 있도록
+  ship.update = () => {
+    const elapsedTime = clock.getElapsedTime();
+    ship.position.y = Math.sin(elapsedTime * 3);
+  };
+...
+   function render() {
+    wave.update();
+    //update 추가
+    ship.update();
+    camera.lookAt(ship.position);
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+  }
+```
