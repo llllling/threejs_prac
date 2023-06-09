@@ -163,3 +163,44 @@ const waveHeight = 2.5;
     requestAnimationFrame(render);
   }
 ```
+
+## 그림자 추가
+
+- ship.castShadow = true 이렇게만 주면 배 그림자 생성안됨.
+  - 실제 모델값은 ship안에 포함되어있는 값들임. 그러니 이 값들을 탐색하면서 castShadow값을 true로 만들어줘야 그림자 생김.
+
+* ship.traverse : 모든 후손 요소들 탐색함
+
+```
+  renderer.shadowMap.enabled = true;
+
+  ...
+
+  //파도 mesh
+  wave.receiveShadow = true;
+
+ // 배 그림자
+  ship.castShadow = true;
+  ship.traverse((child) => {
+    if (!child.isMesh) return;
+    child.castShadow = true;
+  });
+
+   ...
+
+   //조명 그림자 설정
+  pointLight.castShadow = true;
+  //해상도랑 관련된 속성
+  pointLight.shadow.mapSize.width = 1024;
+  pointLight.shadow.mapSize.height = 1024;
+  //끝에 블러효과
+  pointLight.shadow.radius = 10;
+
+  ...
+
+  directionalLight.castShadow = true;
+  directionalLight.shadow.mapSize.width = 1024;
+  directionalLight.shadow.mapSize.height = 1024;
+  directionalLight.shadow.radius = 10;
+
+```

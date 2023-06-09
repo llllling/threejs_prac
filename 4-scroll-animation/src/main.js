@@ -14,6 +14,7 @@ async function init() {
     alpha: true,
     canvas
   });
+  renderer.shadowMap.enabled = true;
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   const scene = new THREE.Scene();
@@ -60,6 +61,8 @@ async function init() {
     // 정점의 좌표정보가 업데이트 되어야함을 ThreeJS에게 알려줘야함
     waveGeometry.attributes.position.needsUpdate = true;
   };
+
+  wave.receiveShadow = true;
   scene.add(wave);
 
   const gLTFLoader = new GLTFLoader();
@@ -75,13 +78,33 @@ async function init() {
 
   ship.rotation.y = Math.PI;
   ship.scale.set(40, 40, 40);
+
+  ship.castShadow = true;
+  ship.traverse((child) => {
+    if (!child.isMesh) return;
+    child.castShadow = true;
+  });
   scene.add(ship);
 
-  const ponitLight = new THREE.PointLight(0xfffff, 1);
-  ponitLight.position.set(15, 15, 15);
-  scene.add(ponitLight);
+  const pointLight = new THREE.PointLight(0xfffff, 1);
+
+  pointLight.castShadow = true;
+  //해상도랑 관련된 속성
+  pointLight.shadow.mapSize.width = 1024;
+  pointLight.shadow.mapSize.height = 1024;
+  //끝에 블러효과
+  pointLight.shadow.radius = 10;
+
+  pointLight.position.set(15, 15, 15);
+  scene.add(pointLight);
 
   const directionalLight = new THREE.DirectionalLight(0xfffff, 0.8);
+
+  directionalLight.castShadow = true;
+  directionalLight.shadow.mapSize.width = 1024;
+  directionalLight.shadow.mapSize.height = 1024;
+  directionalLight.shadow.radius = 10;
+
   directionalLight.position.set(-15, 15, 15);
   scene.add(directionalLight);
 
