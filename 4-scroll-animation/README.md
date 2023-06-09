@@ -204,3 +204,109 @@ const waveHeight = 2.5;
   directionalLight.shadow.radius = 10;
 
 ```
+
+## 스크롤 이벤트 추가
+
+- gsap의 ScrollTrigger플러그인 사용
+
+* scrollTrigger
+
+  - trigger : trigger 옵션에 지정한 요소가 viewport 영역에 들어오는 순간, 애니메이션을 trigger하라.
+
+    - ".wrapper" : html 전체를 감싸고 있는 .wrapper클래스 선택자
+
+  - start : scroolTrigger가 언제 시작될지 설정하는 것
+    - 'top top' : trigger에 설정한 요소의 상단부분이 viewport의 상단에 도달하는 순간, 지정한 애니메이션을 trigger하라.
+
+  * scrub : 스크롤하는 정도에 따라 색이 천천히 변하도록
+
+```
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  //플러그인 등록
+  gsap.registerPlugin(ScrollTrigger);
+
+  const params = {
+    waveColor: "#00ffff"
+  };
+
+  ...
+
+  const waveMaterial = new THREE.MeshStandardMaterial({
+    color: params.waveColor
+  });
+
+  ...
+
+  gsap.to(params, {
+    waveColor: "#4268ff",
+    onUpdate: () => {
+      //threejs에서 meterial에 저장된 color 값은  "#4268ff" 이런 hex코드 string을 직접 할당할 수 없음. 그래서 THREE.Color()로 변환해서 할당해야 함.
+      waveMaterial.color = new THREE.Color(params.waveColor);
+    },
+    scrollTrigger: {
+      trigger: ".wrapper",
+      start: "top top",
+      markers: true,
+      scrub: true
+    }
+  });
+```
+
+### timeline 사용하여 애니메이션이 순서대로 실행되도록
+
+- 아래 코드는 스크롤을 하면 동시에 파도, 배경색이 변경되는 게 아니라 파도색이 변하고 배경색 변경
+
+```
+const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: ".wrapper",
+      start: "top top",
+      markers: true,
+      scrub: true
+    }
+  });
+
+  tl.to(params, {
+    waveColor: "#4268ff",
+    onUpdate: () => {
+      waveMaterial.color = new THREE.Color(params.waveColor);
+    }
+  }).to(params, {
+    backgroundColor: "#2a2a2a",
+    onUpdate: () => {
+      scene.background = new THREE.Color(params.backgroundColor);
+    }
+  });
+```
+
+### timeline을 사용하는 데 동시에 애니메이션 주고 싶을 때
+
+- to() 의 3번째 파라미터인 position값을 준다
+  - 아래코드는 '<' 사용해서 이전 애니메이션과 동시에 실행하라는 의미
+
+```
+tl.to(params, {
+    waveColor: "#4268ff",
+    onUpdate: () => {
+      waveMaterial.color = new THREE.Color(params.waveColor);
+    }
+  })
+    .to(params, {
+      backgroundColor: "#2a2a2a",
+      onUpdate: () => {
+        scene.background = new THREE.Color(params.backgroundColor);
+      }
+    },  "<")
+    .to(
+      params,
+      {
+        fogColor: "#2f2f2f",
+        onUpdate: () => {
+          scene.fogColor = new THREE.Color(params.fogColor);
+        }
+      },
+      "<"
+    );
+```

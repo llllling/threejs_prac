@@ -1,11 +1,20 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { GUI } from "lil-gui";
 window.addEventListener("load", function () {
   init();
 });
 
 async function init() {
+  gsap.registerPlugin(ScrollTrigger);
+
+  const params = {
+    backgroundColor: "#ffffff",
+    waveColor: "#00ffff",
+    fogColor: "#f0f0f0"
+  };
   const gui = new GUI();
 
   const canvas = document.querySelector("#canvas");
@@ -33,7 +42,7 @@ async function init() {
   //더 많은 정점을 위해 Segments값도 150으로 크게
   const waveGeometry = new THREE.PlaneGeometry(1500, 1500, 15, 15);
   const waveMaterial = new THREE.MeshStandardMaterial({
-    color: "#00ffff"
+    color: params.waveColor
   });
   const wave = new THREE.Mesh(waveGeometry, waveMaterial);
   wave.rotation.x = -(Math.PI / 2);
@@ -124,4 +133,40 @@ async function init() {
     renderer.render(scene, camera);
   }
   window.addEventListener("resize", handleResize);
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: ".wrapper",
+      start: "top top",
+      markers: true,
+      scrub: true
+    }
+  });
+
+  tl.to(params, {
+    waveColor: "#4268ff",
+    onUpdate: () => {
+      waveMaterial.color = new THREE.Color(params.waveColor);
+    }
+  })
+    .to(
+      params,
+      {
+        backgroundColor: "#2a2a2a",
+        onUpdate: () => {
+          scene.background = new THREE.Color(params.backgroundColor);
+        }
+      },
+      "<"
+    )
+    .to(
+      params,
+      {
+        fogColor: "#2f2f2f",
+        onUpdate: () => {
+          scene.fogColor = new THREE.Color(params.fogColor);
+        }
+      },
+      "<"
+    );
 }
