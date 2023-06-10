@@ -18,7 +18,7 @@ async function init() {
   const gui = new GUI();
 
   const canvas = document.querySelector("#canvas");
-  const renderer = new THREE.WebGL1Renderer({
+  const renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: true,
     canvas,
@@ -40,7 +40,7 @@ async function init() {
   camera.position.set(0, 25, 150);
   //Plane Mesh 뿐 아니라 모든 Mesh가 여러 삼각형의 합으로 이루어져있음
   //더 많은 정점을 위해 Segments값도 150으로 크게
-  const waveGeometry = new THREE.PlaneGeometry(1500, 1500, 15, 15);
+  const waveGeometry = new THREE.PlaneGeometry(1500, 1500, 150, 150);
   const waveMaterial = new THREE.MeshStandardMaterial({
     color: params.waveColor,
   });
@@ -95,7 +95,7 @@ async function init() {
   });
   scene.add(ship);
 
-  const pointLight = new THREE.PointLight(0xfffff, 1);
+  const pointLight = new THREE.PointLight(0xffffff, 1);
 
   pointLight.castShadow = true;
   //해상도랑 관련된 속성
@@ -107,7 +107,7 @@ async function init() {
   pointLight.position.set(15, 15, 15);
   scene.add(pointLight);
 
-  const directionalLight = new THREE.DirectionalLight(0xfffff, 0.8);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
 
   directionalLight.castShadow = true;
   directionalLight.shadow.mapSize.width = 1024;
@@ -138,6 +138,7 @@ async function init() {
     scrollTrigger: {
       trigger: ".wrapper",
       start: "top top",
+      end: "bottom bottom",
       markers: true,
       scrub: true,
     },
@@ -148,6 +149,7 @@ async function init() {
     onUpdate: () => {
       waveMaterial.color = new THREE.Color(params.waveColor);
     },
+    duration: 1.5,
   })
     .to(
       params,
@@ -156,6 +158,7 @@ async function init() {
         onUpdate: () => {
           scene.background = new THREE.Color(params.backgroundColor);
         },
+        duration: 1.5,
       },
       "<"
     )
@@ -164,26 +167,41 @@ async function init() {
       {
         fogColor: "#2f2f2f",
         onUpdate: () => {
-          scene.fogColor = new THREE.Color(params.fogColor);
+          scene.fog.color = new THREE.Color(params.fogColor);
         },
+        duration: 1.5,
       },
       "<"
     )
     .to(camera.position, {
       x: 100,
-      y: -50,
+      z: -50,
+      duration: 2.5,
     })
-    .to(camera.position, {
+    .to(ship.position, {
       z: 150,
+      duration: 2,
     })
     .to(camera.position, {
       x: -50,
-      y: 50,
+      y: 25,
       z: 100,
+      duration: 2,
     })
     .to(camera.position, {
       x: 0,
       y: 50,
       z: 300,
+      duration: 2,
     });
+
+  gsap.to(".title", {
+    opacity: 0,
+    scrollTrigger: {
+      trigger: ".wrapper",
+      scrub: true,
+      pin: true,
+      end: "+=1000",
+    },
+  });
 }

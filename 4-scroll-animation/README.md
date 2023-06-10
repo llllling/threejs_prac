@@ -218,7 +218,9 @@ const waveHeight = 2.5;
   - start : scroolTrigger가 언제 시작될지 설정하는 것
     - 'top top' : trigger에 설정한 요소의 상단부분이 viewport의 상단에 도달하는 순간, 지정한 애니메이션을 trigger하라.
 
-  * scrub : 스크롤하는 정도에 따라 색이 천천히 변하도록
+  * end : scroolTrigger가 언제 끝날지 설정하는 것
+    - +=1000 : 애니메이션 시작부터 1000픽셀까지 애니메이션을 재생시킨다
+  * scrub : 스크롤하는 정도에 따라 색이 천천히 변하도록, 변화를 부드럽게 하기 위해 스크롤에 따른 애니메이션 변화 속도를 조절
 
 ```
 import { gsap } from "gsap";
@@ -251,6 +253,16 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
       markers: true,
       scrub: true
     }
+  });
+
+  gsap.to(".title", {
+    opacity: 0,
+    scrollTrigger: {
+      trigger: ".wrapper",
+      scrub: true,
+      pin: true,
+      end: "+=1000",
+    },
   });
 ```
 
@@ -309,4 +321,76 @@ tl.to(params, {
       },
       "<"
     );
+```
+
+### timeline 애니메이션 재생시간 설정
+
+- scrub 옵션 있으니까, 재생시간이란 결국 전체 스크롤 범위에 대한 각 애니메이션의 재생 스크롤 비율
+- duration 속성으로 재생시간 조절
+  - 기본값 0.5
+
+* 아래 코드에서 duration 설정한거 다 더하면 총 10초임
+  - positon 속성있는 to()는 동시에 실행되는 것이므로 하나로 간주함.
+  * [duration : 1.5]의 의미 : 1.5/10니까 전체 스크롤 범위에서 15%지점에 도달하는 순간까지 애니메이션이 재생됨
+
+```
+const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: ".wrapper",
+      start: "top top",
+      markers: true,
+      scrub: true
+    }
+  });
+
+  tl.to(params, {
+    waveColor: "#4268ff",
+    onUpdate: () => {
+      waveMaterial.color = new THREE.Color(params.waveColor);
+    },
+    duration: 1.5,
+  })
+    .to(
+      params,
+      {
+        backgroundColor: "#2a2a2a",
+        onUpdate: () => {
+          scene.background = new THREE.Color(params.backgroundColor);
+        },
+        duration: 1.5,
+      },
+      "<"
+    )
+    .to(
+      params,
+      {
+        fogColor: "#2f2f2f",
+        onUpdate: () => {
+          scene.fog.color = new THREE.Color(params.fogColor);
+        },
+        duration: 1.5,
+      },
+      "<"
+    )
+    .to(camera.position, {
+      x: 100,
+      z: -50,
+      duration: 2.5,
+    })
+    .to(ship.position, {
+      z: 150,
+      duration: 2,
+    })
+    .to(camera.position, {
+      x: -50,
+      y: 25,
+      z: 100,
+      duration: 2,
+    })
+    .to(camera.position, {
+      x: 0,
+      y: 50,
+      z: 300,
+      duration: 2,
+    });
 ```
