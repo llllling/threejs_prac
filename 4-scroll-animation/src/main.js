@@ -13,7 +13,7 @@ async function init() {
   const params = {
     backgroundColor: "#ffffff",
     waveColor: "#00ffff",
-    fogColor: "#f0f0f0"
+    fogColor: "#f0f0f0",
   };
   const gui = new GUI();
 
@@ -21,7 +21,7 @@ async function init() {
   const renderer = new THREE.WebGL1Renderer({
     antialias: true,
     alpha: true,
-    canvas
+    canvas,
   });
   renderer.shadowMap.enabled = true;
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -42,7 +42,7 @@ async function init() {
   //더 많은 정점을 위해 Segments값도 150으로 크게
   const waveGeometry = new THREE.PlaneGeometry(1500, 1500, 15, 15);
   const waveMaterial = new THREE.MeshStandardMaterial({
-    color: params.waveColor
+    color: params.waveColor,
   });
   const wave = new THREE.Mesh(waveGeometry, waveMaterial);
   wave.rotation.x = -(Math.PI / 2);
@@ -139,15 +139,15 @@ async function init() {
       trigger: ".wrapper",
       start: "top top",
       markers: true,
-      scrub: true
-    }
+      scrub: true,
+    },
   });
 
   tl.to(params, {
     waveColor: "#4268ff",
     onUpdate: () => {
       waveMaterial.color = new THREE.Color(params.waveColor);
-    }
+    },
   })
     .to(
       params,
@@ -155,7 +155,7 @@ async function init() {
         backgroundColor: "#2a2a2a",
         onUpdate: () => {
           scene.background = new THREE.Color(params.backgroundColor);
-        }
+        },
       },
       "<"
     )
@@ -165,8 +165,25 @@ async function init() {
         fogColor: "#2f2f2f",
         onUpdate: () => {
           scene.fogColor = new THREE.Color(params.fogColor);
-        }
+        },
       },
       "<"
-    );
+    )
+    .to(camera.position, {
+      x: 100,
+      y: -50,
+    })
+    .to(camera.position, {
+      z: 150,
+    })
+    .to(camera.position, {
+      x: -50,
+      y: 50,
+      z: 100,
+    })
+    .to(camera.position, {
+      x: 0,
+      y: 50,
+      z: 300,
+    });
 }
