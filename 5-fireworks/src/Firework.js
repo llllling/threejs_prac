@@ -15,6 +15,7 @@ export class Firework {
       particle.theta = Math.random() * Math.PI * 2;
       particle.phi = Math.random() * Math.PI * 2;
 
+      //구면좌표계 식
       particle.deltaX =
         velocity * Math.sin(particle.theta) * Math.cos(particle.phi);
       particle.deltaY =
