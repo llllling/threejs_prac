@@ -9,7 +9,8 @@ async function init() {
   const renderer = new THREE.WebGL1Renderer({
     antialias: true,
   });
-  renderer.outputEncoding = THREE.sRGBEncoding;
+  // renderer.outputColorSpace = THREE.Co;
+  renderer.shadowMap.enabled = true;
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
@@ -44,16 +45,85 @@ async function init() {
   const gltf = await gltfLoader.loadAsync("./models/character.gltf");
   const model = gltf.scene;
   model.scale.set(0.1, 0.1, 0.1);
+  model.traverse((object) => {
+    if (!object.isMesh) return;
+    object.castShadow = true;
+  });
   scene.add(model);
 
   camera.lookAt(model.position);
 
+  const planGeometry = new THREE.PlaneGeometry(10000, 10000, 10000);
+  const planMaterial = new THREE.MeshPhongMaterial({
+    color: 0x000000,
+  });
+  const plane = new THREE.Mesh(planGeometry, planMaterial);
+  plane.rotation.x = -Math.PI / 2;
+  plane.position.y = -7.5;
+  plane.receiveShadow = true;
+  scene.add(plane);
+
   const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x333333);
   hemisphereLight.position.set(0, 20, 10);
   scene.add(hemisphereLight);
-  render();
 
+  const spotLight = new THREE.SpotLight(
+    0xffffff,
+    1.5,
+    30,
+    Math.PI * 0.15,
+    0.5,
+    0.5
+  );
+  spotLight.position.set(0, 20, 0);
+
+  spotLight.castShadow = true;
+  spotLight.shadow.mapSize.width = 1024;
+  spotLight.shadow.mapSize.height = 1024;
+  spotLight.shadow.radius = 8;
+
+  scene.add(spotLight);
+
+  const mixer = new THREE.AnimationMixer(model);
+
+  const buttons = document.querySelector(".actions");
+
+  let currentAction;
+
+  const combatAnimations = gltf.animations.slice(0, 5);
+  const dancingAnimations = gltf.animations.slice(5);
+
+  combatAnimations.forEach((animation) => {
+    const button = document.createElement("button");
+
+    button.innerText = animation.name;
+    buttons.appendChild(button);
+    button.addEventListener("click", () => {
+      const previousAction = currentAction;
+
+      //클릭한 애니메이션 추가
+      currentAction = mixer.clipAction(animation);
+
+      if (previousAction !== currentAction) {
+        //현재 재생중인 애니메이션이 자연스럽게 멈추도록
+        //인자로 넣은 시간만큼 천천히 애니메이션 멈춤
+        previousAction.fadeOut(0.5);
+
+        currentAction.reset().fadeIn(0.5).play();
+      }
+    });
+  });
+
+  if (gltf.animations.length > 0) {
+    currentAction = mixer.clipAction(gltf.animations[0]);
+    currentAction.play();
+  }
+
+  const clock = new THREE.Clock();
+  render();
   function render() {
+    const delta = clock.getDelta();
+    mixer.update(delta);
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame(render);
