@@ -119,6 +119,9 @@ async function init() {
     currentAction.play();
   }
 
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+
   const clock = new THREE.Clock();
   render();
   function render() {
@@ -136,4 +139,44 @@ async function init() {
     renderer.render(scene, camera);
   }
   window.addEventListener("resize", handleResize);
+
+  function handlePointerDown(e) {
+    pointer.x = (e.clientX / window.innerWidth - 0.5) * 2;
+    pointer.y = -(e.clientY / window.innerHeight - 0.5) * 2;
+
+    raycaster.setFromCamera(pointer, camera);
+
+    const intersects = raycaster.intersectObjects(scene.children);
+
+    //처음 교차된 오브젝트의 값만 필요해서 아래처럼 가져옴.
+    const object = intersects[0]?.object;
+
+    if (object?.name === "Ch46") {
+      const previousAction = currentAction;
+      const index = Math.round(Math.random() * (dancingAnimations.length - 1));
+      currentAction = mixer.clipAction(dancingAnimations[index]);
+
+      currentAction.loop = THREE.LoopOnce;
+      //애니메이션이 마지막 프레임에서 멈추도록
+      currentAction.clampWhenFinished = true;
+
+      if (previousAction !== currentAction) {
+        previousAction.fadeOut(0.5);
+
+        currentAction.reset().fadeIn(0.5).play();
+      }
+      mixer.addEventListener("finished", handleFinished);
+      function handleFinished() {
+        mixer.removeEventListener("finished", handleFinished);
+
+        const previousAction = currentAction;
+        //애니메이션이 끝나고 다시 idle 액션으로 돌아오도록
+        currentAction = mixer.clipAction(combatAnimations[0]);
+
+        previousAction.fadeOut(0.5);
+        currentAction.reset().fadeIn(0.5).play();
+      }
+    }
+  }
+  window.addEventListener("pointerdown", handlePointerDown);
 }
